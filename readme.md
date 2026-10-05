@@ -1,189 +1,355 @@
-# Final Project: Benchmarking AI Test Generation with SWT-Bench
+# Final Project: Improving DeepFlash Test Generation with mini-SWE-agent and SWT-Bench
 
 ## 1. Objective
 
-Build and evaluate a method that generates regression tests from real-world software issue descriptions. Compare your method with a baseline, submit reproducible results to the class leaderboard, and investigate what your results reveal about test quality.
+Build and evaluate a new workflow that uses DeepFlash to generate regression tests from real-world software issue descriptions. Use mini-SWE-agent as the agent framework for the implementation and evaluate test quality using SWT-Bench.
 
-The central research question is:
+DeepFlash is the required baseline. Your goal is to add a new workflow intended to improve its bug reproduction success, test quality, or efficiency. Compare the unchanged baseline with your workflow using SWT-Bench and investigate what the results reveal about generated test quality. An improvement is a hypothesis to test, not a required outcome.
 
-**Can your method generate tests that reproduce reported bugs more effectively or efficiently than a simple baseline?**
+### Central Research Question
 
-Your grade depends on experimental quality, reproducibility, and analysis; not leaderboard position. However, those who get the best result may receive bonus!
+> Can a new workflow built around DeepFlash generate tests that reproduce reported bugs more effectively or efficiently than the unchanged DeepFlash baseline?
 
-## 2. Preparation
+Your grade depends primarily on:
 
-Before beginning, complete the SWT-Bench paper review and read the benchmark’s [evaluation and submission documentation](https://github.com/logic-star-ai/SWT-Bench).
+- Experimental rigor
+- Reproducibility
+- Analysis quality
+- Clear reporting
 
-SWT-Bench evaluates generated tests against an original repository and its reference bug fix. Successful tests must expose the bug before the fix and pass afterward. The paper also evaluates how thoroughly generated tests exercise code changed by the fix. [Paper, Sections 3.1–3.3](https://arxiv.org/html/2406.12952v3)
+Leaderboard position is reported but is not a major grading factor.
+
+---
+
+## 2. Background
+
+Before beginning:
+
+1. Complete the SWT-Bench paper review.
+2. Read the benchmark documentation:
+   - https://github.com/logic-star-ai/SWT-Bench
+3. Read the mini-SWE-agent documentation: https://github.com/SWE-agent/mini-swe-agent
+4. Familiarize yourself with the evaluation workflow.
+
+SWT-Bench evaluates whether generated tests:
+
+- Expose a bug before a fix
+- Pass after the fix
+- Integrate into the repository test suite
 
 By the end of this project, you should be able to:
 
-- Run a repository-level test-generation benchmark.
-- Design a controlled comparison between two methods.
-- Interpret benchmark metrics alongside individual test cases.
-- Package results so another person can reproduce them.
-- Explain the limits of claims based on leaderboard scores.
+- Run a repository-level test generation benchmark
+- Design a controlled experiment
+- Evaluate AI-generated tests
+- Analyze benchmark results critically
+- Produce reproducible research artifacts
+
+---
 
 ## 3. Project Scope
 
-Work individually or in a team of two to three students.
+You may work:
+
+- Individually
+- In teams of 2–3 students
 
 Each team must implement and evaluate:
 
-1. **A baseline:** A simple, documented approach that prompts an AI model to generate tests from an issue description and repository context.
-2. **An experimental method:** One deliberate change intended to improve the baseline.
+### Required Baseline: DeepFlash
 
-Possible changes include:
+Use [mini-SWE-agent](https://github.com/SWE-agent/mini-swe-agent) as the agent framework and DeepFlash as the baseline model. The mini-SWE-agent is not the evaluation dataset, the assigned SWT-Bench instances remain the shared dataset. Document how your new workflow changes the baseline agent procedure and configure the agent to produce test patches. Generation may not modify production code.
 
-- Retrieving more relevant source files or existing tests.
-- Providing examples of repository testing conventions.
-- Letting an agent execute and revise tests on the buggy repository.
-- Generating multiple candidates and selecting one using observable evidence.
-- Improving assertions or adding issue-specific edge cases.
-- Reducing generation cost while preserving effectiveness.
+### Experimental Method: A New Workflow Around DeepFlash
 
-Choose one main research question. A carefully evaluated small change is sufficient; training a new model is not required.
+Implement one deliberate workflow change intended to improve the DeepFlash baseline. Keep DeepFlash fixed for the primary comparison so that the experiment measures the effect of the workflow.
 
-## 4. Dataset and Experimental Rules
+Choose one primary research question and state why the selected workflow should help.
 
-### Shared evaluation set
+### Example Workflow: Execution-Guided Test Refinement
 
-The instructor will publish:
+One possible experiment is to add a bounded execution-feedback loop:
 
-- A development set of approximately **20 instances**.
-- A fixed evaluation set of approximately **50 instances**, drawn from SWT-Bench Lite and spanning multiple repositories.
-- The dataset revision, instance IDs, evaluation-harness version, and resource limits.
+1. Read the issue and retrieve source code and existing tests.
+2. Use DeepFlash to generate a test patch.
+3. Apply and run the test on the buggy repository.
+4. Classify the result: invalid patch, setup or import failure, unrelated failure, passing test, or potentially issue-relevant failure.
+5. Use DeepFlash to revise the test within a fixed repair budget, preserving meaningful assertions.
+7. Submit the final patch to the evaluator, which checks behavior before and after the reference fix.
 
-Every team must evaluate both methods on the same evaluation instances. Class-subset scores must be labeled clearly and must not be presented as full SWT-Bench Lite results.
+A failing test on the buggy repository is only a candidate reproduction. Generation and repair must not use the reference fix, reference tests, or evaluator-only results. The evaluator determines whether the test satisfies SWT-Bench's success criterion.
 
-If resources require a smaller set, the instructor will revise the shared set before final evaluation.
+This is an example, not a required implementation. A carefully evaluated small improvement is preferable to a complicated system.
 
-### Fair comparison
+---
+## 4. Shared Dataset
 
-Keep the model, repository access, and generation budget constant unless one of these is the variable you are studying. Record any unavoidable differences.
+The instructor will provide:
 
-Before final evaluation, freeze your prompts, configuration, candidate-selection rule, and method version. Do not tune your method using final evaluation outcomes.
+- Development set (~25 instances) for evaluation
+- Dataset revision
+- Instance IDs
 
-During generation, the method may access the issue description, original repository, existing tests, and permitted development tools. It must not access the reference fix, reference test patch, or evaluator-only artifacts.
+All teams must evaluate:
+
+- Both methods
+- On the same evaluation instances
+
+## 5. Experimental Rules
+
+For a fair comparison:
+
+- Use the same DeepFlash model or implementation and version for both methods. The workflow is the primary research outcome.
+
+Your method may access:
+
+- Issue descriptions
+- Repository source code
+- Existing tests
+- Development tools
+
+Your method may **not** access:
+
+- Reference fixes
+- Reference test patches
+- Evaluator-only artifacts
 
 Additional requirements:
 
-- Produce test patches without modifying production behavior.
-- Do not disable existing tests or weaken assertions to obtain a passing result.
-- Select candidates without consulting reference-fix outcomes.
-- Preserve all attempts and document retries.
-- Keep missing predictions, invalid outputs, and generation timeouts in the evaluation denominator.
-- Report infrastructure failures separately. Any exclusions must follow an instructor-defined rule applied consistently to all teams.
+- Do not modify production code.
+- Do not disable tests.
+- Do not weaken assertions.
+- Preserve all generated outputs.
+- Report failures and timeouts.
+- Keep missing predictions in the denominator.
 
-## 5. Evaluation and Class Leaderboard
+---
 
-Use the official evaluation harness, pinned to the instructor’s selected version.
+## 6. Evaluation
 
-Report these metrics:
+Use the official SWT-Bench evaluation harness in **unit-test mode**. 
 
-| Metric | Required interpretation |
-|---|---|
-| **Issue reproduction success rate** | Percentage of evaluation instances with at least one generated test that fails before the reference fix, while all generated tests pass afterward. |
-| **Change coverage** | Harness-reported coverage contribution on executable code affected by the reference fix. Explain the harness’s aggregation and any excluded cases. |
-| **Patch applicability** | Percentage of generated test patches that apply successfully. |
-| **Cost and runtime** | Total generation cost, average generation time per instance, and evaluation time, reported separately. |
+Report the following metrics below:
 
-Success rate captures bug reproduction; coverage captures additional exercise of relevant code. Neither alone establishes that a test fully represents the issue or that a patch is correct. [Paper, Section 3.3](https://arxiv.org/html/2406.12952v3)
+### Issue Reproduction Success Rate
 
-Submit one baseline row and one experimental-method row:
+Percentage of instances where generated tests:
 
-| Team | Method/version | Dataset/instance count | Successes / total (%) | Change coverage | Applicability | Generation cost | Avg. generation time |
-|---|---|---|---|---|---|---|---|
+- Fail before the reference fix
+- Pass afterward
+- Satisfy the harness success criterion
 
-The class leaderboard will rank methods by success rate. Tied methods share a rank; cost and coverage remain visible for comparison.
+Report the number of successful instances, the total assigned instances, and the resulting percentage. Missing predictions, generation failures, invalid patches, and method-caused timeouts remain in the denominator and count as unsuccessful.
 
-For analysis:
+Log infrastructure failures separately. Retry an unchanged prediction after infrastructure recovery using the same evaluation settings. Do not regenerate predictions or selectively remove instances. Unresolved infrastructure failures remain in the denominator for the class score and must be labeled as unevaluated; explain their effect on interpretation. Any instructor-approved exclusion must apply consistently to every team's methods and be documented.
 
-- Report the paired difference between your methods.
-- Count instances solved by both, only the baseline, only your method, and neither.
-- Include a 95% confidence interval for the success-rate difference, using paired resampling over instances.
-- Discuss uncertainty and repository composition when interpreting small differences.
+### Coverage Delta
 
-For stochastic methods, run three repetitions if the shared budget permits. Otherwise, report the single-run limitation explicitly.
+Report the official harness coverage-delta metric and identify the exact output field, units, aggregation rule, and number of instances with available coverage. Distinguish overall coverage delta from coverage on successful reproductions. Report unavailable coverage as N/A, not zero, and explain why it is unavailable.
 
-## 6. Required Test-Quality Analysis
+### Patch Applicability
 
-Inspect at least **six instances** selected using a documented rule:
+Number of assigned instances with a successfully applied prediction patch divided by all assigned instances. Report the count and percentage; missing predictions count as not applicable.
 
-- Two successful reproductions.
-- Two unsuccessful attempts.
-- Two cases where the methods disagree.
+### Cost and Runtime
 
-If a category has too few cases, inspect all available cases and explain the substitution.
+Report:
 
-For each case, identify:
+- Total generation cost
+- Average generation time
+- Evaluation time
 
-1. The behavior described by the issue.
-2. The generated test’s input and assertion.
-3. Its behavior before and after the reference fix.
-4. Whether the observed failure meaningfully represents the issue.
-5. What the case reveals about your method.
+---
 
-Discuss at least one threat to validity and one way to investigate it. Examples include weak assertions, flaky tests, benchmark contamination, narrow repository coverage, and tests that detect only one particular implementation of a fix.
+### Paired Comparison and Uncertainty
 
-## 7. Milestones
+Provide a table counting instances where:
 
-| Milestone | Suggested timing | Deliverable |
-|---|---|---|
-| Proposal and pilot | Week 1 | One-page research question, baseline, proposed change, budget, and three-instance pilot. |
-| Development checkpoint | Week 2 | Working methods, development-set results, and preliminary failure analysis. |
-| Method freeze | Week 3 | Frozen configuration, instance manifest, and reproducible evaluation procedure. |
-| Final submission | Week 4 | Report, code, prediction artifacts, leaderboard rows, and presentation. |
+- Both methods succeed
+- Only the baseline succeeds
+- Only the experimental method succeeds
+- Neither method succeeds
 
-The pilot must demonstrate that you can generate a test patch, evaluate it, and interpret the resulting logs.
+Repeat generation with multiple seeds when the provided budget permits. Otherwise, identify single-run variability as a limitation and record any seeds supported by the tools.
 
-## 8. Final Submission
+## 7. Class Leaderboard
+
+Submit one row for each method.
+
+| Team | Method | Success Rate | Coverage | Applicability | Cost | Avg. Generation Time |
+|--------|--------|--------|--------|--------|--------|--------|
+| Example Team | DeepFlash baseline | ... | ... | ... | ... | ... |
+| Example Team | DeepFlash + new workflow | ... | ... | ... | ... | ... |
+
+Leaderboard ranking is based on:
+
+1. Success rate
+2. Tied methods share rank
+
+Coverage and cost remain visible for comparison.
+
+You should focus primarily on:
+
+- Experimental design
+- Analysis
+- Reproducibility
+
+rather than leaderboard position.
+
+---
+
+## 8. Required Analysis
+
+Inspect at least **six instances**.
+
+Include:
+
+- Two successful reproductions
+- Two unsuccessful cases
+- Two cases where the methods disagree
+
+Analyze **six distinct instances**. Categories may overlap, but an instance counts only once toward the total. If a category has fewer than two available cases, analyze all available cases in that category and select additional failures or other available cases to reach six. If fewer than six evaluation instances are available, analyze all of them and explain the shortfall.
+
+State your case-selection procedure. Use a systematic rule, such as selecting by instance ID within each category, and identify any additional cases chosen for a specific diagnostic reason.
+
+For each instance discuss:
+
+1. The reported issue
+2. The generated test
+3. Behavior before the fix
+4. Behavior after the fix
+5. Whether the test meaningfully represents the issue
+6. What the result reveals about the method
+
+Also discuss:
+
+- At least one threat to validity
+- At least one future improvement
+
+Examples:
+
+- Weak assertions
+- Flaky tests
+- Benchmark contamination
+- Limited repository coverage
+- Overfitting to benchmark behavior
+
+---
+## 9. Milestones
+
+| Milestone | Suggested Timing | Deliverable |
+|------------|------------|------------|
+| Proposal & Pilot | Week 6 | Research question, baseline, planned improvement, budget |
+| Development Checkpoint | Week 7 | Working methods and preliminary results |
+| Method Freeze | Week 8 | Frozen configuration and evaluation procedure |
+| Final Submission | Week 9 | Report, artifacts |
+| Presentation | Week 10 | Oral Presentation (e.g., ten minutes video or in-person or online) |
+
+### Pilot Requirement
+
+The Week 6 pilot must demonstrate that you can:
+
+- Generate a test patch
+- Run the evaluation harness
+- Interpret evaluation results
+
+---
+
+## 10. Prerequisites, Resources, and Support
+
+Students should have basic experience with Python, Git, automated testing, and Docker. 
+
+## 11. Final Submission
 
 Submit a repository or ZIP archive containing:
 
-- **Report:** Approximately 1,500–2,000 words in Markdown or PDF.
-- **Code and README:** Installation instructions and commands for generation, evaluation, and result aggregation.
-- **Prediction artifacts:** Baseline and experimental-method JSONL files compatible with the selected harness.
-- **Results:** Per-instance outcomes, aggregate metrics, cost records, and leaderboard rows.
-- **Evidence:** Generated patches, evaluation logs, and available agent traces.
-- **Presentation:** A five-minute explanation of your question, method, result, and strongest limitation.
+### Report
 
-Organize the report under these headings:
+1500–2000 words for the main text, excluding references and appendices, using the [IEEE conference template](https://www.overleaf.com/latex/templates/ieee-conference-template/grfzhhncsfqn).
+
+Required sections:
 
 1. Research Question and Motivation
-2. Methods and Experimental Design
-3. Results and Leaderboard Comparison
-4. Test-Quality and Failure Analysis
-5. Threats to Validity and Conclusions
-6. Reproducibility, Team Contributions, and AI Disclosure
+2. Method and Experimental Design
+3. Results
+4. Test Quality Analysis
+5. Threats to Validity
+6. Conclusion
 
-Include names, complete references, model identifiers, access dates, prompts, settings, dependencies, dataset revision, and harness commit.
+Include the main findings from the case studies in the report. Detailed six-instance analyses, generated test excerpts, and additional result tables may appear in an appendix.
 
-Disclose AI tools used for test generation, implementation, analysis, and writing. Identify which outputs your team checked.
+### Artifacts
 
-## 9. Optional Official Leaderboard Submission
+- Source code
+- README
+- Prediction JSONL files
+- Evaluation results
+- Logs
+- Generated patches
+- Frozen DeepFlash baseline and experimental workflow configurations, including prompts
+- mini-SWE-agent source, version, configuration, and integration instructions
+- Workflow diagram or numbered procedure, stopping rules, and final-candidate selection rule
+- Per-instance paired outcomes and cost records
+- A contribution statement describing each team member's implementation, evaluation, analysis, and writing work
 
-Teams may extend their evaluation to a complete supported SWT-Bench Lite or Verified split.
+### Presentation
 
-The benchmark repository currently requests prediction JSONL, local performance results, project and trace links, and reproduction information for official submissions. A class subset does not meet its complete-split requirement. [Official submission instructions](https://github.com/logic-star-ai/SWT-Bench#submitting-results-to-the-leaderboard)
+A ten-minute presentation covering:
 
-Official submission is optional and earns no advantage based on acceptance or processing time.
+- Research question
+- Method
+- Results
+- Main insight
+- Biggest limitation
 
-## 10. Grading — 100 Points
+---
 
-| Criterion | Points |
-|---|---:|
-| Clear research question and justified experimental change | 15 |
-| Working baseline and experimental method | 20 |
-| Fair evaluation and correct metric reporting | 20 |
-| Reproducible artifacts and leaderboard submission | 20 |
-| Meaningful test-quality analysis and validity discussion | 15 |
-| Clear report, presentation, contributions, and AI disclosure | 10 |
+## 12. AI Disclosure
+
+Disclose all AI tools used for:
+
+- Test generation
+- Implementation
+- Analysis
+- Writing
+
+Identify which outputs were reviewed or modified by your team.
+
+---
+
+## 13. Project Grading (30% of Course Grade)
+ 
+The final project contributes **30% of the overall course grade**.
+ 
+| Category | Points |
+|-----------|--------:|
+| Research question and experimental design | 15 |
+| Baseline and experimental method | 20 |
+| Correct evaluation and reporting | 20 |
+| Reproducibility and artifacts | 20 |
+| Analysis and discussion | 15 |
+| Report and presentation | 10 |
 | **Total** | **100** |
 
-A method that does not improve the baseline can earn full credit when the experiment is sound and the analysis explains the result.
+### Important
+
+A method that performs worse than the baseline can still earn full credit if:
+
+- The experiment is well designed
+- The evaluation is fair
+- The results are reproducible
+- The analysis is thoughtful and insightful
+
+---
 
 ## Reference
 
-Mündler, N., Müller, M. N., He, J., & Vechev, M. (2024). *SWT-Bench: Testing and Validating Real-World Bug-Fixes with Code Agents*. Advances in Neural Information Processing Systems 37. https://doi.org/10.48550/arXiv.2406.12952
+Mündler, N., Müller, M. N., He, J., & Vechev, M. (2024).
+
+**SWT-Bench: Testing and Validating Real-World Bug-Fixes with Code Agents.**
+
+Advances in Neural Information Processing Systems (NeurIPS 2024).
+
+https://doi.org/10.48550/arXiv.2406.12952
+
 
