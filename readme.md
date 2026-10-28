@@ -242,8 +242,9 @@ Examples:
 | Proposal & Pilot | Week 6 | Research question, baseline, planned improvement, budget |
 | Development Checkpoint | Week 7 | Working methods and preliminary results |
 | Method Freeze | Week 8 | Frozen configuration and evaluation procedure |
-| Final Submission | Week 9 | Report, artifacts |
+| Improve methods | Week 9 | Continue to iterate |
 | Presentation | Week 10 | Oral Presentation (e.g., ten minutes video or in-person or online) |
+| Final Report | Week 11 | Final Paper Report |
 
 ### Pilot Requirement
 
