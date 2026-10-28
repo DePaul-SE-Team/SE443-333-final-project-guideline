@@ -1,14 +1,14 @@
-# Final Project: Improving DeepFlash Test Generation with mini-SWE-agent and SWT-Bench
+# Final Project: Improving DeepSeek-Flash Test Generation with mini-SWE-agent and SWT-Bench
 
 ## 1. Objective
 
-Build and evaluate a new workflow that uses DeepFlash to generate regression tests from real-world software issue descriptions. Use mini-SWE-agent as the agent framework for the implementation and evaluate test quality using SWT-Bench.
+Build and evaluate a new workflow that uses DeepSeek-Flash to generate regression tests from real-world software issue descriptions. Use mini-SWE-agent as the agent framework for the implementation and evaluate test quality using SWT-Bench.
 
-DeepFlash is the required baseline. Your goal is to add a new workflow intended to improve its bug reproduction success, test quality, or efficiency. Compare the unchanged baseline with your workflow using SWT-Bench and investigate what the results reveal about generated test quality. An improvement is a hypothesis to test, not a required outcome.
+DeepSeek-Flash is the required baseline. Your goal is to add a new workflow intended to improve its bug reproduction success, test quality, or efficiency. Compare the unchanged baseline with your workflow using SWT-Bench and investigate what the results reveal about generated test quality. An improvement is a hypothesis to test, not a required outcome.
 
 ### Central Research Question
 
-> Can a new workflow built around DeepFlash generate tests that reproduce reported bugs more effectively or efficiently than the unchanged DeepFlash baseline?
+> Can a new workflow built around DeepSeek-Flash generate tests that reproduce reported bugs more effectively or efficiently than the unchanged DeepSeek-Flash baseline?
 
 Your grade depends primarily on:
 
@@ -56,13 +56,13 @@ You may work:
 
 Each team must implement and evaluate:
 
-### Required Baseline: DeepFlash
+### Required Baseline: DeepSeek-Flash
 
-Use [mini-SWE-agent](https://github.com/SWE-agent/mini-swe-agent) as the agent framework and DeepFlash as the baseline model. The mini-SWE-agent is not the evaluation dataset, the assigned SWT-Bench instances remain the shared dataset. Document how your new workflow changes the baseline agent procedure and configure the agent to produce test patches. Generation may not modify production code.
+Use [mini-SWE-agent](https://github.com/SWE-agent/mini-swe-agent) as the agent framework and DeepSeek-Flash as the baseline model. The mini-SWE-agent is not the evaluation dataset, the assigned SWT-Bench instances remain the shared dataset. Document how your new workflow changes the baseline agent procedure and configure the agent to produce test patches. Generation may not modify production code.
 
-### Experimental Method: A New Workflow Around DeepFlash
+### Experimental Method: A New Workflow Around DeepSeek-Flash
 
-Implement one deliberate workflow change intended to improve the DeepFlash baseline. Keep DeepFlash fixed for the primary comparison so that the experiment measures the effect of the workflow.
+Implement one deliberate workflow change intended to improve the DeepSeek-Flash baseline. Keep DeepSeek-Flash fixed for the primary comparison so that the experiment measures the effect of the workflow.
 
 Choose one primary research question and state why the selected workflow should help.
 
@@ -71,10 +71,10 @@ Choose one primary research question and state why the selected workflow should 
 One possible experiment is to add a bounded execution-feedback loop:
 
 1. Read the issue and retrieve source code and existing tests.
-2. Use DeepFlash to generate a test patch.
+2. Use DeepSeek-Flash to generate a test patch.
 3. Apply and run the test on the buggy repository.
 4. Classify the result: invalid patch, setup or import failure, unrelated failure, passing test, or potentially issue-relevant failure.
-5. Use DeepFlash to revise the test within a fixed repair budget, preserving meaningful assertions.
+5. Use DeepSeek-Flash to revise the test within a fixed repair budget, preserving meaningful assertions.
 7. Submit the final patch to the evaluator, which checks behavior before and after the reference fix.
 
 A failing test on the buggy repository is only a candidate reproduction. Generation and repair must not use the reference fix, reference tests, or evaluator-only results. The evaluator determines whether the test satisfies SWT-Bench's success criterion.
@@ -99,7 +99,7 @@ All teams must evaluate:
 
 For a fair comparison:
 
-- Use the same DeepFlash model or implementation and version for both methods. The workflow is the primary research outcome.
+- Use the same DeepSeek-Flash model or implementation and version for both methods. The workflow is the primary research outcome.
 
 Your method may access:
 
@@ -178,8 +178,8 @@ Submit one row for each method.
 
 | Team | Method | Success Rate | Coverage | Applicability | Cost | Avg. Generation Time |
 |--------|--------|--------|--------|--------|--------|--------|
-| Example Team | DeepFlash baseline | ... | ... | ... | ... | ... |
-| Example Team | DeepFlash + new workflow | ... | ... | ... | ... | ... |
+| Example Team | DeepSeek-Flash baseline | ... | ... | ... | ... | ... |
+| Example Team | DeepSeek-Flash + new workflow | ... | ... | ... | ... | ... |
 
 Leaderboard ranking is based on:
 
@@ -287,7 +287,7 @@ Include the main findings from the case studies in the report. Detailed six-inst
 - Evaluation results
 - Logs
 - Generated patches
-- Frozen DeepFlash baseline and experimental workflow configurations, including prompts
+- Frozen DeepSeek-Flash baseline and experimental workflow configurations, including prompts
 - mini-SWE-agent source, version, configuration, and integration instructions
 - Workflow diagram or numbered procedure, stopping rules, and final-candidate selection rule
 - Per-instance paired outcomes and cost records
